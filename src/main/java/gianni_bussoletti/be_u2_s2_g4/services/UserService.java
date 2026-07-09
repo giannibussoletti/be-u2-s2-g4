@@ -1,5 +1,7 @@
 package gianni_bussoletti.be_u2_s2_g4.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import gianni_bussoletti.be_u2_s2_g4.entities.User;
 import gianni_bussoletti.be_u2_s2_g4.exceptions.BadRequestException;
 import gianni_bussoletti.be_u2_s2_g4.exceptions.NotFoundException;
@@ -12,15 +14,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final Cloudinary fileUploader;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, Cloudinary fileUploader) {
         this.userRepository = userRepository;
+        this.fileUploader = fileUploader;
     }
 
     public User save(UserDTO payload) {
@@ -78,5 +85,24 @@ public class UserService {
         this.userRepository.save(found);
     }
 
+    public void updateAvatar(UUID userId, MultipartFile file) {
+        // 1. Controlli vari tipo file non più grande di tot, tipo di file permesso solo GIF
+        // 2. Find by id dell'utente
 
+        // 3. Upload del file su Cloudinary
+        try {
+            Map result = fileUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String url = (String) result.get("secure_url");
+            System.out.println(url);
+            // 4. Se l'upload va a buon fine, Cloudinary ci restituirà l'url dell'immagine.
+            // Questo URL deve essere settato nel record dell'utente
+            // (setAvatarURL("url")
+            // save dell'utente
+
+            // 5. O torno void o torno l'utente modificato
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

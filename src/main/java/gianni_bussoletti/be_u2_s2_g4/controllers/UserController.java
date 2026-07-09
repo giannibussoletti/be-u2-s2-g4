@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +67,14 @@ public class UserController {
     public void updatePassword(@PathVariable UUID userId, @RequestBody PasswordUpdateDTO body) {
         this.userService.updatePassword(userId, body);
 
+    }
+
+    @PatchMapping("/{userId}/avatar")
+    //Il multipartFile è un metodo per gestire oggetti non JSON come immagini o video
+    // Il requestParam deve avere un nome che deve coincidere con quello del frontEnd
+    public void updateAvatar(@PathVariable UUID userId, @RequestParam("profile_picture") MultipartFile file) {
+        //In questo ENDPOINT non si usano JSON ma si attende che arrivino payload in formato multipart/form-data
+        this.userService.updateAvatar(userId, file);
     }
 
 }
